@@ -33,9 +33,9 @@ int main(int argc, char* argv[]) {
             static_cast<uint32_t>(warehouse.GetFinishVertexes()[0]),
     };
 
-    auto ASO =
+    auto ACO =
         std::make_unique<BasicACO>(std::move(parameters), std::move(graph));
-    auto best_route = ASO->Execute();
+    auto best_route = ACO->Execute();
 
     std::cout << "Best route:\n";
     warehouse.VisualizeRoute(std::cout, best_route);
