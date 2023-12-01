@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     };
 
     auto ASO =
-        std::make_unique<BasicASO>(std::move(parameters), std::move(graph));
+        std::make_unique<BasicACO>(std::move(parameters), std::move(graph));
     auto best_route = ASO->Execute();
 
     std::cout << "Best route:\n";

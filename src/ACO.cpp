@@ -44,20 +44,20 @@ IACO::IACO(ACOParameters parameters, Graph graph)
       graph_(std::move(graph)),
       pheromones_(graph_.Size(), parameters_.ro, true, parameters.taumax) {}
 
-BasicASO::BasicASO(ACOParameters parameters, Graph graph)
+BasicACO::BasicACO(ACOParameters parameters, Graph graph)
     : IACO(std::move(parameters), std::move(graph)),
       routes_(parameters_.ants),
       best_route_({}),
       best_length_(std::nullopt) {}
 
-Route BasicASO::Execute() {
+Route BasicACO::Execute() {
   for (uint32_t i = 0; i < parameters_.num_iter; ++i) {
     MakeIteration();
   }
   return best_route_;
 }
 
-void BasicASO::MakeIteration() {
+void BasicACO::MakeIteration() {
   for (uint32_t ant = 0; ant < parameters_.ants; ++ant) {
     while (!ValidRoute(routes_[ant])) {
       routes_[ant] = FindRoute(ant);
@@ -77,7 +77,7 @@ void BasicASO::MakeIteration() {
   }
 }
 
-void BasicASO::UpdatePheromones() {
+void BasicACO::UpdatePheromones() {
   Pheromones pheromone_deltas(graph_.Size(), 0);
 
   for (const auto& route : routes_) {
@@ -94,7 +94,7 @@ void BasicASO::UpdatePheromones() {
   pheromones_.Update(pheromone_deltas);
 }
 
-Route BasicASO::FindRoute(uint32_t ant) const {
+Route BasicACO::FindRoute(uint32_t ant) const {
   Route route{parameters_.start_vertex};
   std::unordered_set<Vertex> visited{route.back()};
 
@@ -143,7 +143,7 @@ Route BasicASO::FindRoute(uint32_t ant) const {
   return route;
 }
 
-Distance BasicASO::RouteLength(const Route& route) const {
+Distance BasicACO::RouteLength(const Route& route) const {
   Distance sum = 0;
   for (size_t i = 0; i + 1 < route.size(); ++i) {
     auto from = route[i];
@@ -153,7 +153,7 @@ Distance BasicASO::RouteLength(const Route& route) const {
   return sum;
 }
 
-bool BasicASO::ValidRoute(const Route& route) const {
+bool BasicACO::ValidRoute(const Route& route) const {
   if (route.empty() || route[0] != parameters_.start_vertex ||
       route.back() != parameters_.finish_vertex) {
     return false;

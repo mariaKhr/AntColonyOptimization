@@ -47,10 +47,10 @@ class IACO {
   Pheromones pheromones_;
 };
 
-class BasicASO : public IACO {
+class BasicACO : public IACO {
  public:
-  BasicASO(ACOParameters parameters, Graph graph);
-  ~BasicASO() = default;
+  BasicACO(ACOParameters parameters, Graph graph);
+  ~BasicACO() = default;
 
   Route Execute() override;
 
