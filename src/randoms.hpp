@@ -17,7 +17,7 @@ class RandomGenerator final {
 
 class DiscreteDistribution final {
  public:
-  explicit DiscreteDistribution(RandomGenerator& gen, Weights weights);
+  DiscreteDistribution(RandomGenerator& gen, Weights weights);
 
   template <typename Iter>
     requires std::forward_iterator<Iter>
