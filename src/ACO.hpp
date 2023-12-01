@@ -58,7 +58,7 @@ class BasicASO : public IACO {
   void MakeIteration();
   void UpdatePheromones();
 
-  Route FindRoute(uint32_t ant);
+  Route FindRoute(uint32_t ant) const;
   Distance RouteLength(const Route& route) const;
   bool ValidRoute(const Route& route) const;
 

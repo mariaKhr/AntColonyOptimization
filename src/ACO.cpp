@@ -94,7 +94,7 @@ void BasicASO::UpdatePheromones() {
   pheromones_.Update(pheromone_deltas);
 }
 
-Route BasicASO::FindRoute(uint32_t ant) {
+Route BasicASO::FindRoute(uint32_t ant) const {
   Route route{parameters_.start_vertex};
   std::unordered_set<Vertex> visited{route.back()};
 
