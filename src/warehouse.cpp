@@ -67,9 +67,13 @@ Warehouse::Warehouse(const std::vector<std::vector<std::string>>& map) {
       std::visit(find_start_and_finish_ceil_visitor, ceils_.back());
     }
   }
+
+  if (!start_ceil_ || finish_ceils_.empty()) {
+    throw std::runtime_error("Invalid map. At least one T and Y was expected");
+  }
 }
 
-size_t Warehouse::GetStartVertex() const { return start_ceil_; }
+size_t Warehouse::GetStartVertex() const { return *start_ceil_; }
 
 const std::vector<size_t>& Warehouse::GetFinishVertexes() const {
   return finish_ceils_;

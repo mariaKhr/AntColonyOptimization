@@ -21,21 +21,21 @@ G G G G Y G G G G
 G G G G G G G G G 
 G G G G G G G G G 
 G G G G G G G G G 
-G G G G G G G G G 
-G G G G G G G G G 
+G G G G R G G G G 
 G G G G G G G G G 
 G G G G G G G G G 
 G G G G T G G G G 
+G G G G R G G G G 
 Best route:
-G G G G Y . G G G 
-G G G G G . G G G 
-G G G G G . G G G 
-G G G G G . G G G 
-G G G G . . G G G 
+G G G G Y G G G G 
 G G G G . G G G G 
+G G G . . G G G G 
+G G G . G G G G G 
+G G G . R G G G G 
+G G G . . G G G G 
 G G G G . G G G G 
-G G G G . G G G G 
-G G G G T G G G G
+G G G G T G G G G 
+G G G G R G G G G
 ```
 
 ### Как запустить тесты?

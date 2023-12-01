@@ -130,7 +130,6 @@ Route BasicASO::FindRoute(uint32_t ant) {
 
     // deadlock
     if (probs.empty()) {
-      route.clear();
       break;
     }
 

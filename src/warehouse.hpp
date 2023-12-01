@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <ostream>
+#include <optional>
 #include <variant>
 
 #include "csv.hpp"
@@ -46,7 +47,7 @@ class Warehouse final {
   size_t width_;
 
   std::vector<WarehouseCeil> ceils_;
-  size_t start_ceil_;
+  std::optional<size_t> start_ceil_;
   std::vector<size_t> finish_ceils_;
 
   friend std::ostream& operator<<(std::ostream& os, const Warehouse& warehouse);
