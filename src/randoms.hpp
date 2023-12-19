@@ -7,8 +7,12 @@ using Weights = std::initializer_list<Weight>;
 
 class RandomGenerator final {
  public:
+  std::mt19937 &Get();
+
+  static RandomGenerator &GetInstance();
+
+ private:
   RandomGenerator();
-  std::mt19937& Get();
 
  private:
   std::random_device random_device_;
@@ -17,32 +21,30 @@ class RandomGenerator final {
 
 class DiscreteDistribution final {
  public:
-  DiscreteDistribution(RandomGenerator& gen, Weights weights);
+  DiscreteDistribution(RandomGenerator &gen, Weights weights);
 
   template <typename Iter>
     requires std::forward_iterator<Iter>
-  DiscreteDistribution(RandomGenerator& gen, Iter weights_begin, Iter weights_end)
-      : gen_(gen),
-        distribution_(weights_begin, weights_end) {}
+  DiscreteDistribution(RandomGenerator &gen, Iter weights_begin,
+                       Iter weights_end)
+      : gen_(gen), distribution_(weights_begin, weights_end) {}
 
   int32_t Get();
 
  private:
-  RandomGenerator& gen_;
+  RandomGenerator &gen_;
   std::discrete_distribution<> distribution_;
 };
 
 class UniformDistribution final {
  public:
-  UniformDistribution(RandomGenerator& gen, double min, double max);
+  UniformDistribution(RandomGenerator &gen, double min, double max);
 
   double Get();
 
  private:
-  RandomGenerator& gen_;
+  RandomGenerator &gen_;
   std::uniform_real_distribution<> distribution_;
 };
-
-RandomGenerator& GetRandomGenerator();
 
 }  // namespace aco

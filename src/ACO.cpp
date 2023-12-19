@@ -11,7 +11,8 @@ Pheromones::Pheromones(size_t num, double ro, bool initial_filling,
                        double taumax)
     : pheromones_(num), ro_(ro) {
   if (initial_filling) {
-    auto uniform_dist = UniformDistribution(GetRandomGenerator(), 0, 1);
+    auto uniform_dist =
+        UniformDistribution(RandomGenerator::GetInstance(), 0, 1);
     for (size_t from = 0; from < num; ++from) {
       for (size_t to = 0; to < num; ++to) {
         pheromones_.Set(from, to, uniform_dist.Get() * taumax);
@@ -24,7 +25,7 @@ PheromoneType Pheromones::GetPheromone(Vertex from, Vertex to) const {
   return pheromones_.Get(from, to);
 }
 
-void Pheromones::Update(const Pheromones& delta) {
+void Pheromones::Update(const Pheromones &delta) {
   for (size_t from = 0; from < pheromones_.Size(); ++from) {
     for (size_t to = 0; to < pheromones_.Size(); ++to) {
       auto cur_pheromone = pheromones_.Get(from, to);
@@ -80,7 +81,7 @@ void BasicACO::MakeIteration() {
 void BasicACO::UpdatePheromones() {
   Pheromones pheromone_deltas(graph_.Size(), 0);
 
-  for (const auto& route : routes_) {
+  for (const auto &route : routes_) {
     auto length = RouteLength(route);
     auto delta = parameters_.q / length;
     for (size_t i = 0; i + 1 < route.size(); ++i) {
@@ -104,7 +105,7 @@ Route BasicACO::FindRoute(uint32_t ant) const {
 
     {
       auto neighbours = graph_.GetNeighbours(route.back());
-      for (const auto& neig : neighbours) {
+      for (const auto &neig : neighbours) {
         if (visited.contains(neig)) {
           continue;
         }
@@ -120,11 +121,11 @@ Route BasicACO::FindRoute(uint32_t ant) const {
     }
 
     double sum = 0;
-    for (const auto& prob : probs) {
+    for (const auto &prob : probs) {
       sum += prob;
     }
 
-    for (auto& prob : probs) {
+    for (auto &prob : probs) {
       prob /= sum;
     }
 
@@ -133,9 +134,10 @@ Route BasicACO::FindRoute(uint32_t ant) const {
       break;
     }
 
-    auto next_vertex = TaskGenerator(valid_neigh, GetRandomGenerator(),
-                                     probs.begin(), probs.end())
-                           .Get();
+    auto next_vertex =
+        TaskGenerator(valid_neigh, RandomGenerator::GetInstance(),
+                      probs.begin(), probs.end())
+            .Get();
     route.push_back(next_vertex);
     visited.insert(next_vertex);
   }
@@ -143,7 +145,7 @@ Route BasicACO::FindRoute(uint32_t ant) const {
   return route;
 }
 
-Distance BasicACO::RouteLength(const Route& route) const {
+Distance BasicACO::RouteLength(const Route &route) const {
   Distance sum = 0;
   for (size_t i = 0; i + 1 < route.size(); ++i) {
     auto from = route[i];
@@ -153,7 +155,7 @@ Distance BasicACO::RouteLength(const Route& route) const {
   return sum;
 }
 
-bool BasicACO::ValidRoute(const Route& route) const {
+bool BasicACO::ValidRoute(const Route &route) const {
   if (route.empty() || route[0] != parameters_.start_vertex ||
       route.back() != parameters_.finish_vertex) {
     return false;

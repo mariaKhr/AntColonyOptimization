@@ -30,7 +30,7 @@ std::vector<Vertex> Graph::GetNeighbours(Vertex v) const {
 
 size_t Graph::Size() const { return graph_.Size(); }
 
-std::ostream& operator<<(std::ostream& os, const Graph& graph) {
+std::ostream &operator<<(std::ostream &os, const Graph &graph) {
   auto num_vertex = graph.Size();
   for (size_t from = 0; from < num_vertex; ++from) {
     for (size_t to = 0; to < num_vertex; ++to) {

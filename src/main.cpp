@@ -6,7 +6,7 @@
 
 using namespace aco;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   if (argc != 2) {
     std::cout << "Invalid command line argument. Expected path to csv file\n";
     return 1;
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
     std::cout << "Best route:\n";
     warehouse.VisualizeRoute(std::cout, best_route);
 
-  } catch (const std::exception& ex) {
+  } catch (const std::exception &ex) {
     std::cout << ex.what() << "\n";
     return 1;
   }
