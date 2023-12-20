@@ -27,10 +27,10 @@ int main(int argc, char *argv[]) {
         .beta = 0.8,
         .q = 10,
         .ro = 0.2,
-        .taumax = 2,
+        .initial_pheromone = 0.01,
         .start_vertex = static_cast<uint32_t>(warehouse.GetStartVertex()),
         .finish_vertex =
-            static_cast<uint32_t>(warehouse.GetFinishVertexes()[0]),
+            static_cast<uint32_t>(*warehouse.GetFinishVertexes().begin()),
     };
 
     auto ACO =

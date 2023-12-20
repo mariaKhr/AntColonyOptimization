@@ -36,15 +36,4 @@ class DiscreteDistribution final {
   std::discrete_distribution<> distribution_;
 };
 
-class UniformDistribution final {
- public:
-  UniformDistribution(RandomGenerator &gen, double min, double max);
-
-  double Get();
-
- private:
-  RandomGenerator &gen_;
-  std::uniform_real_distribution<> distribution_;
-};
-
 }  // namespace aco

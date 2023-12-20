@@ -3,6 +3,7 @@
 #include <memory>
 #include <optional>
 #include <ostream>
+#include <unordered_set>
 #include <variant>
 
 #include "csv.hpp"
@@ -12,22 +13,22 @@ namespace aco {
 
 enum class WarehouseCeilType {
   empty,
-  start,
   unavailable,
+  start,
   finish,
 };
 
-WarehouseCeilType CreateCeil(std::string_view type);
-std::ostream &operator<<(std::ostream &os, WarehouseCeilType obj);
+bool IsAvailableWarehouseCeil(WarehouseCeilType ceil);
 
-bool IsAvailable(WarehouseCeilType ceil);
+WarehouseCeilType CreateWarehouseCeil(std::string_view type);
+std::ostream &operator<<(std::ostream &os, WarehouseCeilType obj);
 
 class Warehouse final {
  public:
   explicit Warehouse(const Rows &warehouse);
 
   size_t GetStartVertex() const;
-  const std::vector<size_t> &GetFinishVertexes() const;
+  const std::unordered_set<size_t> &GetFinishVertexes() const;
 
   static Graph ToGraph(const Warehouse &warehouse);
   void VisualizeRoute(std::ostream &os, const Route &route);
@@ -42,7 +43,7 @@ class Warehouse final {
 
   std::vector<WarehouseCeilType> ceils_;
   std::optional<size_t> start_ceil_;
-  std::vector<size_t> finish_ceils_;
+  std::unordered_set<size_t> finish_ceils_;
 
   friend std::ostream &operator<<(std::ostream &os, const Warehouse &warehouse);
 };

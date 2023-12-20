@@ -1,21 +1,25 @@
 #include "ACO.hpp"
+#include "task_generator.hpp"
 
 #include <optional>
 #include <unordered_set>
 
-#include "task_generator.hpp"
-
 namespace aco {
 
-Pheromones::Pheromones(size_t num, double ro, bool initial_filling,
-                       double taumax)
-    : pheromones_(num), ro_(ro) {
+Pheromones Pheromones::PheromonesWithoutInitialValue(size_t num_vertex, double ro) {
+  return Pheromones(num_vertex, ro);
+}
+
+Pheromones Pheromones::PheromonesWithInitialValue(size_t num_vertex, double ro, PheromoneType initial_value) {
+  return Pheromones(num_vertex, ro, /*initial_filling*/ true, initial_value);
+}
+
+Pheromones::Pheromones(size_t num_vertex, double ro, bool initial_filling, PheromoneType initial_value)
+    : pheromones_(num_vertex), ro_(ro) {
   if (initial_filling) {
-    auto uniform_dist =
-        UniformDistribution(RandomGenerator::GetInstance(), 0, 1);
-    for (size_t from = 0; from < num; ++from) {
-      for (size_t to = 0; to < num; ++to) {
-        pheromones_.Set(from, to, uniform_dist.Get() * taumax);
+    for (size_t from = 0; from < num_vertex; ++from) {
+      for (size_t to = 0; to < num_vertex; ++to) {
+        pheromones_.Set(from, to, initial_value);
       }
     }
   }
@@ -43,12 +47,11 @@ void Pheromones::Add(Vertex from, Vertex to, PheromoneType delta) {
 IACO::IACO(ACOParameters parameters, Graph graph)
     : parameters_(std::move(parameters)),
       graph_(std::move(graph)),
-      pheromones_(graph_.Size(), parameters_.ro, true, parameters.taumax) {}
+      pheromones_(Pheromones::PheromonesWithInitialValue(graph_.Size(), parameters_.ro, parameters.initial_pheromone)) {}
 
 BasicACO::BasicACO(ACOParameters parameters, Graph graph)
     : IACO(std::move(parameters), std::move(graph)),
       routes_(parameters_.ants),
-      best_route_({}),
       best_length_(std::nullopt) {}
 
 Route BasicACO::Execute() {
@@ -79,7 +82,7 @@ void BasicACO::MakeIteration() {
 }
 
 void BasicACO::UpdatePheromones() {
-  Pheromones pheromone_deltas(graph_.Size(), 0);
+  auto pheromone_deltas = Pheromones::PheromonesWithoutInitialValue(graph_.Size(), 0);
 
   for (const auto &route : routes_) {
     auto length = RouteLength(route);

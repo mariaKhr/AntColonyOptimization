@@ -20,10 +20,4 @@ DiscreteDistribution::DiscreteDistribution(RandomGenerator &gen,
 
 int32_t DiscreteDistribution::Get() { return distribution_(gen_.Get()); }
 
-UniformDistribution::UniformDistribution(RandomGenerator &gen, double min,
-                                         double max)
-    : gen_(gen), distribution_(min, max) {}
-
-double UniformDistribution::Get() { return distribution_(gen_.Get()); }
-
 }  // namespace aco
