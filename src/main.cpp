@@ -21,24 +21,18 @@ int main(int argc, char *argv[]) {
     auto graph = Warehouse::ToGraph(warehouse);
 
     ACOParameters parameters{
-        .ants = 100,
-        .num_iter = 10,
-        .alpha = 0.5,
-        .beta = 0.8,
-        .q = 10,
-        .ro = 0.2,
-        .initial_pheromone = 0.1,
         .start_vertex = static_cast<uint32_t>(warehouse.GetStartVertex()),
         .finish_vertex =
             static_cast<uint32_t>(*warehouse.GetFinishVertexes().begin()),
     };
 
-    auto ACO =
-        std::make_unique<BasicACO>(std::move(parameters), std::move(graph));
-    ACO->Execute();
-
-    std::cout << "Best route:\n";
-    warehouse.VisualizeRoute(std::cout, ACO->GetBestRoute());
+    auto ACO = BasicACO(std::move(parameters), graph);
+    Route route;
+    for (uint32_t i = 0; i < 1000; ++i) {
+      route = ACO.Execute();
+    }
+    std::cout << "Found route:\n";
+    warehouse.VisualizeRoute(std::cout, route);
 
   } catch (const std::exception &ex) {
     std::cout << ex.what() << "\n";

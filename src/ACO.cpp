@@ -4,27 +4,16 @@
 
 namespace aco {
 
-BasicACO::BasicACO(ACOParameters parameters, Graph graph)
+BasicACO::BasicACO(ACOParameters parameters, const Graph &graph)
     : parameters_(std::move(parameters)),
       graph_(std::move(graph)),
       pheromones_(Pheromones::PheromonesWithInitialValue(
-          graph_.Size(), parameters_.ro, parameters.initial_pheromone)),
-      ant_routes_(parameters_.ants),
-      best_length_(std::nullopt) {}
+          graph_.Size(), parameters_.ro, parameters.initial_pheromone)) {}
 
-void BasicACO::Execute() {
-  for (uint32_t i = 0; i < parameters_.num_iter; ++i) {
-    MakeIteration();
-  }
-}
-
-void BasicACO::MakeIteration() {
-  for (uint32_t ant = 0; ant < parameters_.ants; ++ant) {
-    ant_routes_[ant] = FindRoute();
-    UpdateBestRoute(ant_routes_[ant]);
-  }
-
-  UpdatePheromones();
+Route BasicACO::Execute() {
+  auto route = FindRoute();
+  UpdatePheromones(route);
+  return route;
 }
 
 Route BasicACO::FindRoute() const {
@@ -96,14 +85,6 @@ double BasicACO::CalculateTau(PheromoneType pheromone_count) const {
   return std::pow(pheromone_count, parameters_.alpha);
 }
 
-void BasicACO::UpdateBestRoute(const Route &route) {
-  auto length = CalculateRouteLength(route);
-  if (!best_length_ || length < *best_length_) {
-    best_length_ = length;
-    best_route_ = route;
-  }
-}
-
 Distance BasicACO::CalculateRouteLength(const Route &route) const {
   Distance sum = 0;
 
@@ -124,24 +105,20 @@ bool BasicACO::IsValidRoute(const Route &route) const {
   return true;
 }
 
-void BasicACO::UpdatePheromones() {
+void BasicACO::UpdatePheromones(const Route &route) {
   auto pheromone_deltas =
       Pheromones::PheromonesWithoutInitialValue(graph_.Size(), 0);
 
-  for (const auto &route : ant_routes_) {
-    auto length = CalculateRouteLength(route);
-    auto delta = parameters_.q / length;
-    for (size_t i = 0; i + 1 < route.size(); ++i) {
-      auto from = route[i];
-      auto to = route[i + 1];
-      pheromone_deltas.AddPheromone(from, to, delta);
-      pheromone_deltas.AddPheromone(to, from, delta);
-    }
+  auto length = CalculateRouteLength(route);
+  auto delta = parameters_.q / length;
+  for (size_t i = 0; i + 1 < route.size(); ++i) {
+    auto from = route[i];
+    auto to = route[i + 1];
+    pheromone_deltas.AddPheromone(from, to, delta);
+    pheromone_deltas.AddPheromone(to, from, delta);
   }
 
   pheromones_.Update(pheromone_deltas);
 }
-
-const Route &BasicACO::GetBestRoute() const { return best_route_; }
 
 }  // namespace aco

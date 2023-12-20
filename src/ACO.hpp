@@ -8,31 +8,25 @@
 namespace aco {
 
 struct ACOParameters {
-  uint32_t ants;
-  uint32_t num_iter;
-  double alpha;  // parameter to control the influence of pheromones
-  double beta;   // parameter to control the influence of distance
-  double q;      // estimation of the suspected best route
-  double ro;     // pheromone evaporation coefficient
-  double initial_pheromone;
+  double alpha = 0.9;  // parameter to control the influence of pheromones
+  double beta = 0.1;   // parameter to control the influence of distance
+  double q = 1;        // estimation of the suspected best route
+  double ro = 0.1;     // pheromone evaporation coefficient
+  double initial_pheromone = 0.1;
   uint32_t start_vertex;
   uint32_t finish_vertex;
 };
 
 class BasicACO final {
  public:
-  BasicACO(ACOParameters parameters, Graph graph);
+  BasicACO(ACOParameters parameters, const Graph &graph);
   ~BasicACO() = default;
 
-  void Execute();
-  const Route &GetBestRoute() const;
+  Route Execute();
 
  private:
-  void MakeIteration();
-
   Route FindRoute() const;
   Route TryFindRoute() const;
-  void UpdateBestRoute(const Route &route);
   Distance CalculateRouteLength(const Route &route) const;
   bool IsValidRoute(const Route &route) const;
 
@@ -44,16 +38,12 @@ class BasicACO final {
   double CalculateEta(Distance edge_len) const;
   double CalculateTau(PheromoneType pheromone_count) const;
 
-  void UpdatePheromones();
+  void UpdatePheromones(const Route &route);
 
  private:
   ACOParameters parameters_;
-  Graph graph_;
+  const Graph &graph_;
   Pheromones pheromones_;
-
-  std::vector<Route> ant_routes_;
-  Route best_route_;
-  std::optional<Distance> best_length_;
 };
 
 }  // namespace aco
