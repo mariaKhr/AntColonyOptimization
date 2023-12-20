@@ -1,20 +1,24 @@
 #include "ACO.hpp"
-#include "task_generator.hpp"
 
 #include <optional>
 #include <unordered_set>
 
+#include "task_generator.hpp"
+
 namespace aco {
 
-Pheromones Pheromones::PheromonesWithoutInitialValue(size_t num_vertex, double ro) {
+Pheromones Pheromones::PheromonesWithoutInitialValue(size_t num_vertex,
+                                                     double ro) {
   return Pheromones(num_vertex, ro);
 }
 
-Pheromones Pheromones::PheromonesWithInitialValue(size_t num_vertex, double ro, PheromoneType initial_value) {
+Pheromones Pheromones::PheromonesWithInitialValue(size_t num_vertex, double ro,
+                                                  PheromoneType initial_value) {
   return Pheromones(num_vertex, ro, /*initial_filling*/ true, initial_value);
 }
 
-Pheromones::Pheromones(size_t num_vertex, double ro, bool initial_filling, PheromoneType initial_value)
+Pheromones::Pheromones(size_t num_vertex, double ro, bool initial_filling,
+                       PheromoneType initial_value)
     : pheromones_(num_vertex), ro_(ro) {
   if (initial_filling) {
     for (size_t from = 0; from < num_vertex; ++from) {
@@ -47,7 +51,8 @@ void Pheromones::Add(Vertex from, Vertex to, PheromoneType delta) {
 IACO::IACO(ACOParameters parameters, Graph graph)
     : parameters_(std::move(parameters)),
       graph_(std::move(graph)),
-      pheromones_(Pheromones::PheromonesWithInitialValue(graph_.Size(), parameters_.ro, parameters.initial_pheromone)) {}
+      pheromones_(Pheromones::PheromonesWithInitialValue(
+          graph_.Size(), parameters_.ro, parameters.initial_pheromone)) {}
 
 BasicACO::BasicACO(ACOParameters parameters, Graph graph)
     : IACO(std::move(parameters), std::move(graph)),
@@ -82,7 +87,8 @@ void BasicACO::MakeIteration() {
 }
 
 void BasicACO::UpdatePheromones() {
-  auto pheromone_deltas = Pheromones::PheromonesWithoutInitialValue(graph_.Size(), 0);
+  auto pheromone_deltas =
+      Pheromones::PheromonesWithoutInitialValue(graph_.Size(), 0);
 
   for (const auto &route : routes_) {
     auto length = RouteLength(route);

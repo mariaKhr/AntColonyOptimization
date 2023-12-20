@@ -11,7 +11,8 @@ using PheromoneType = double;
 class Pheromones final {
  public:
   static Pheromones PheromonesWithoutInitialValue(size_t num_vertex, double ro);
-  static Pheromones PheromonesWithInitialValue(size_t num_vertex, double ro, PheromoneType initial_value);
+  static Pheromones PheromonesWithInitialValue(size_t num_vertex, double ro,
+                                               PheromoneType initial_value);
 
   PheromoneType GetPheromone(Vertex from, Vertex to) const;
   void Add(Vertex from, Vertex to, PheromoneType delta);
@@ -19,7 +20,8 @@ class Pheromones final {
   void Update(const Pheromones &delta);
 
  private:
-  Pheromones(size_t num_vertex, double ro, bool initial_filling = false, PheromoneType initial_value = 0.0);
+  Pheromones(size_t num_vertex, double ro, bool initial_filling = false,
+             PheromoneType initial_value = 0.0);
 
  private:
   AdjacencyMatrix<PheromoneType> pheromones_;
@@ -29,10 +31,10 @@ class Pheromones final {
 struct ACOParameters {
   uint32_t ants;
   uint32_t num_iter;
-  double alpha;   // parameter to control the influence of pheromones
-  double beta;    // parameter to control the influence of distance
-  double q;       // estimation of the suspected best route
-  double ro;      // pheromone evaporation coefficient
+  double alpha;  // parameter to control the influence of pheromones
+  double beta;   // parameter to control the influence of distance
+  double q;      // estimation of the suspected best route
+  double ro;     // pheromone evaporation coefficient
   double initial_pheromone;
   uint32_t start_vertex;
   uint32_t finish_vertex;

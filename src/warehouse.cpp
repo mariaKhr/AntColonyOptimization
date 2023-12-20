@@ -99,7 +99,7 @@ Graph Warehouse::ToGraph(const Warehouse &warehouse) {
   size_t num_vertex = warehouse.height_ * warehouse.width_;
   auto graph = Graph(num_vertex);
   for (size_t vertex = 0; vertex < num_vertex; ++vertex) {
-    for (const auto& neigh : warehouse.GetNeighbours(vertex)) {
+    for (const auto &neigh : warehouse.GetNeighbours(vertex)) {
       graph.SetEdge(vertex, neigh, warehouse.GetDistance(vertex, neigh));
     }
   }
@@ -109,7 +109,8 @@ Graph Warehouse::ToGraph(const Warehouse &warehouse) {
 void Warehouse::VisualizeRoute(std::ostream &os, const Route &route) {
   std::unordered_set<Vertex> route_vertices(route.begin(), route.end());
 
-  for (size_t ceil_index = 0, num_ceils = ceils_.size(); ceil_index < num_ceils; ++ceil_index) {
+  for (size_t ceil_index = 0, num_ceils = ceils_.size(); ceil_index < num_ceils;
+       ++ceil_index) {
     if (route_vertices.contains(ceil_index)) {
       if (ceil_index == start_ceil_) {
         os << "T ";
