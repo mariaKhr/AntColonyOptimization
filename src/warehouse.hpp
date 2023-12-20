@@ -28,7 +28,7 @@ class Warehouse final {
   explicit Warehouse(const Rows &warehouse);
 
   Vertex GetStartVertex() const;
-  const std::unordered_set<Vertex> &GetFinishVertexes() const;
+  const std::unordered_set<Vertex> &GetFinishVertices() const;
 
   static Graph ToGraph(const Warehouse &warehouse);
   void VisualizeRoute(std::ostream &os, const Route &route);

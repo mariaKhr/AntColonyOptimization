@@ -10,8 +10,8 @@ TEST_CASE("TestWarehouse") {
   Warehouse warehouse(rows);
 
   REQUIRE(warehouse.GetStartVertex() == 2);
-  std::unordered_set<size_t> expected_finish_vertexes = {0, 5};
-  REQUIRE(warehouse.GetFinishVertexes() == expected_finish_vertexes);
+  std::unordered_set<size_t> expected_finish_vertices = {0, 5};
+  REQUIRE(warehouse.GetFinishVertices() == expected_finish_vertices);
 }
 
 TEST_CASE("TestWarehouseToGraph") {

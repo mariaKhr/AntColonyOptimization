@@ -46,4 +46,16 @@ class BasicACO final {
   Pheromones pheromones_;
 };
 
+using Target = uint32_t;
+
+class MultiTargetACO final {
+ public:
+  MultiTargetACO(std::vector<ACOParameters> parameters, const Graph &graph);
+
+  Route Execute(Target target);
+
+ private:
+  std::vector<BasicACO> algorithms_;
+};
+
 }  // namespace aco

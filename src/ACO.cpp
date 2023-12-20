@@ -121,4 +121,16 @@ void BasicACO::UpdatePheromones(const Route &route) {
   pheromones_.Update(pheromone_deltas);
 }
 
+MultiTargetACO::MultiTargetACO(std::vector<ACOParameters> parameters,
+                               const Graph &graph) {
+  algorithms_.reserve(parameters.size());
+  for (auto &&aco_parameters : parameters) {
+    algorithms_.emplace_back(std::move(aco_parameters), graph);
+  }
+}
+
+Route MultiTargetACO::Execute(Target target) {
+  return algorithms_[target].Execute();
+}
+
 }  // namespace aco

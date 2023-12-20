@@ -93,7 +93,7 @@ Warehouse::Warehouse(const Rows &map) {
 
 Vertex Warehouse::GetStartVertex() const { return *start_ceil_; }
 
-const std::unordered_set<Vertex> &Warehouse::GetFinishVertexes() const {
+const std::unordered_set<Vertex> &Warehouse::GetFinishVertices() const {
   return finish_ceils_;
 }
 

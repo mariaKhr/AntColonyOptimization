@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     ACOParameters parameters{
         .start_vertex = static_cast<uint32_t>(warehouse.GetStartVertex()),
         .finish_vertex =
-            static_cast<uint32_t>(*warehouse.GetFinishVertexes().begin()),
+            static_cast<uint32_t>(*warehouse.GetFinishVertices().begin()),
     };
 
     auto ACO = BasicACO(std::move(parameters), graph);
