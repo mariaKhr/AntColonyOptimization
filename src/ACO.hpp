@@ -1,32 +1,11 @@
 #pragma once
 
-#include <optional>
+#include <unordered_set>
 
 #include "graph.hpp"
+#include "pheromones.hpp"
 
 namespace aco {
-
-using PheromoneType = double;
-
-class Pheromones final {
- public:
-  static Pheromones PheromonesWithoutInitialValue(size_t num_vertex, double ro);
-  static Pheromones PheromonesWithInitialValue(size_t num_vertex, double ro,
-                                               PheromoneType initial_value);
-
-  PheromoneType GetPheromone(Vertex from, Vertex to) const;
-  void Add(Vertex from, Vertex to, PheromoneType delta);
-
-  void Update(const Pheromones &delta);
-
- private:
-  Pheromones(size_t num_vertex, double ro, bool initial_filling = false,
-             PheromoneType initial_value = 0.0);
-
- private:
-  AdjacencyMatrix<PheromoneType> pheromones_;
-  double ro_;
-};
 
 struct ACOParameters {
   uint32_t ants;
@@ -40,37 +19,39 @@ struct ACOParameters {
   uint32_t finish_vertex;
 };
 
-class IACO {
- public:
-  IACO(ACOParameters parameters, Graph graph);
-  virtual ~IACO() = default;
-
-  virtual Route Execute() = 0;
-
- protected:
-  ACOParameters parameters_;
-  Graph graph_;
-  Pheromones pheromones_;
-};
-
-class BasicACO : public IACO {
+class BasicACO final {
  public:
   BasicACO(ACOParameters parameters, Graph graph);
   ~BasicACO() = default;
 
-  Route Execute() override;
+  void Execute();
+  const Route &GetBestRoute() const;
 
  private:
   void MakeIteration();
+
+  Route FindRoute() const;
+  Route TryFindRoute() const;
+  void UpdateBestRoute(const Route &route);
+  Distance CalculateRouteLength(const Route &route) const;
+  bool IsValidRoute(const Route &route) const;
+
+  std::vector<Vertex> GetAvailableNeighbors(
+      Vertex vertex, const std::unordered_set<Vertex> &forbidden) const;
+  std::vector<double> CalculateTransitionProbabilities(
+      Vertex start_vertex, const std::vector<Vertex> &neighbors) const;
+
+  double CalculateEta(Distance edge_len) const;
+  double CalculateTau(PheromoneType pheromone_count) const;
+
   void UpdatePheromones();
 
-  Route FindRoute(uint32_t ant) const;
-  Distance RouteLength(const Route &route) const;
-  bool ValidRoute(const Route &route) const;
-
  private:
-  std::vector<Route> routes_;
+  ACOParameters parameters_;
+  Graph graph_;
+  Pheromones pheromones_;
 
+  std::vector<Route> ant_routes_;
   Route best_route_;
   std::optional<Distance> best_length_;
 };

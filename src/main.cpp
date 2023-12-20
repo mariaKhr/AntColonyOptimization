@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
         .beta = 0.8,
         .q = 10,
         .ro = 0.2,
-        .initial_pheromone = 0.01,
+        .initial_pheromone = 0.1,
         .start_vertex = static_cast<uint32_t>(warehouse.GetStartVertex()),
         .finish_vertex =
             static_cast<uint32_t>(*warehouse.GetFinishVertexes().begin()),
@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
 
     auto ACO =
         std::make_unique<BasicACO>(std::move(parameters), std::move(graph));
-    auto best_route = ACO->Execute();
+    ACO->Execute();
 
     std::cout << "Best route:\n";
-    warehouse.VisualizeRoute(std::cout, best_route);
+    warehouse.VisualizeRoute(std::cout, ACO->GetBestRoute());
 
   } catch (const std::exception &ex) {
     std::cout << ex.what() << "\n";

@@ -5,6 +5,8 @@
 #include <unordered_set>
 #include <variant>
 
+#include "graph.hpp"
+
 namespace aco {
 
 bool IsAvailableWarehouseCeil(WarehouseCeilType ceil) {
@@ -89,16 +91,16 @@ Warehouse::Warehouse(const Rows &map) {
   }
 }
 
-size_t Warehouse::GetStartVertex() const { return *start_ceil_; }
+Vertex Warehouse::GetStartVertex() const { return *start_ceil_; }
 
-const std::unordered_set<size_t> &Warehouse::GetFinishVertexes() const {
+const std::unordered_set<Vertex> &Warehouse::GetFinishVertexes() const {
   return finish_ceils_;
 }
 
 Graph Warehouse::ToGraph(const Warehouse &warehouse) {
   size_t num_vertex = warehouse.height_ * warehouse.width_;
   auto graph = Graph(num_vertex);
-  for (size_t vertex = 0; vertex < num_vertex; ++vertex) {
+  for (Vertex vertex = 0; vertex < num_vertex; ++vertex) {
     for (const auto &neigh : warehouse.GetNeighbours(vertex)) {
       graph.SetEdge(vertex, neigh, warehouse.GetDistance(vertex, neigh));
     }
@@ -109,7 +111,7 @@ Graph Warehouse::ToGraph(const Warehouse &warehouse) {
 void Warehouse::VisualizeRoute(std::ostream &os, const Route &route) {
   std::unordered_set<Vertex> route_vertices(route.begin(), route.end());
 
-  for (size_t ceil_index = 0, num_ceils = ceils_.size(); ceil_index < num_ceils;
+  for (Vertex ceil_index = 0, num_ceils = ceils_.size(); ceil_index < num_ceils;
        ++ceil_index) {
     if (route_vertices.contains(ceil_index)) {
       if (ceil_index == start_ceil_) {
@@ -131,11 +133,11 @@ void Warehouse::VisualizeRoute(std::ostream &os, const Route &route) {
   }
 }
 
-std::vector<size_t> Warehouse::GetNeighbours(size_t vertex) const {
+std::vector<Vertex> Warehouse::GetNeighbours(Vertex vertex) const {
   if (!IsAvailableWarehouseCeil(ceils_[vertex])) {
     return {};
   }
-  std::vector<size_t> neighbours;
+  std::vector<Vertex> neighbours;
 
   auto row = vertex / width_;
   auto col = vertex % width_;
@@ -156,7 +158,7 @@ std::vector<size_t> Warehouse::GetNeighbours(size_t vertex) const {
   return neighbours;
 }
 
-Distance Warehouse::GetDistance(size_t from, size_t to) const {
+Distance Warehouse::GetDistance(Vertex from, Vertex to) const {
   auto from_x = from % width_;
   auto from_y = from / width_;
   auto to_x = to % width_;

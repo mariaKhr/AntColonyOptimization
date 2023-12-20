@@ -6,4 +6,5 @@ add_library (aco
     task_generator.cpp 
     warehouse.cpp
     randoms.cpp
+    pheromones.cpp
 )
