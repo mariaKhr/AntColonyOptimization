@@ -11,5 +11,5 @@ cmake --build .
 
 ### Как запустить проект?
 ```
-./aco_project ../examples/simplest_map.txt ../examples/target_probs.txt
+./aco_project ../examples/map.txt ../examples/target_probs.txt
 ```

@@ -13,6 +13,8 @@ class Robot final {
   bool Busy() const;
   bool Finished() const;
 
+  const Route& GetRoute() const;
+
  private:
   Route route_;
   Coordinates start_;

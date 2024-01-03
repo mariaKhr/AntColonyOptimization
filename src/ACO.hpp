@@ -23,8 +23,8 @@ class MultiTargetACO final {
 
  private:
   struct BasicACOParameters {
-    double alpha = 1.0;  // parameter to control the influence of pheromones
-    double ro = 0.1;    // pheromone evaporation coefficient
+    double alpha = 2.0;  // parameter to control the influence of pheromones
+    double ro = 0.1;     // pheromone evaporation coefficient
     double initial_pheromone = 0.01;
     Coordinates start;
     Coordinates finish;

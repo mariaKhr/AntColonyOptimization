@@ -35,7 +35,7 @@ void MultiTargetACO::BasicACO::UpdatePheromones(const Route &route) {
   pheromones_.Evaporate(parameters_.ro);
 
   auto length = route.size();
-  auto delta = 1 / length;
+  auto delta = 1.0 / length;
   for (const auto &coord : route) {
     pheromones_.Add(coord, delta);
   }

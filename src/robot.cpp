@@ -1,5 +1,7 @@
 #include "robot.hpp"
 
+#include <iostream>
+
 namespace aco {
 
 void Robot::SetAlgorithm(MultiTargetACO* algo) { algorithm_ = algo; }
@@ -33,5 +35,7 @@ std::optional<Coordinates> Robot::MakeStep() {
 bool Robot::Busy() const { return busy_; }
 
 bool Robot::Finished() const { return !Busy() && !route_.empty(); }
+
+const Route& Robot::GetRoute() const { return route_; }
 
 }  // namespace aco
