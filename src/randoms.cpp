@@ -1,7 +1,5 @@
 #include "randoms.hpp"
 
-#include <iostream>
-
 namespace aco {
 
 RandomGenerator::RandomGenerator()

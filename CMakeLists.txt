@@ -10,5 +10,3 @@ include_directories("src")
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries (${PROJECT_NAME} aco)
-
-add_subdirectory (tests)

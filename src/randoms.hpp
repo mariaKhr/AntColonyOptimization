@@ -1,15 +1,17 @@
+#pragma once
+
 #include <random>
 
 namespace aco {
 
 using Weight = double;
-using Weights = std::initializer_list<Weight>;
+using Weights = std::vector<Weight>;
 
 class RandomGenerator final {
  public:
-  std::mt19937 &Get();
-
   static RandomGenerator &GetInstance();
+
+  std::mt19937 &Get();
 
  private:
   RandomGenerator();
@@ -23,10 +25,8 @@ class DiscreteDistribution final {
  public:
   DiscreteDistribution(RandomGenerator &gen, Weights weights);
 
-  template <typename Iter>
-    requires std::forward_iterator<Iter>
-  DiscreteDistribution(RandomGenerator &gen, Iter weights_begin,
-                       Iter weights_end)
+  template <std::forward_iterator It>
+  DiscreteDistribution(RandomGenerator &gen, It weights_begin, It weights_end)
       : gen_(gen), distribution_(weights_begin, weights_end) {}
 
   int32_t Get();

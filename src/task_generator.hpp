@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdexcept>
+
 #include "randoms.hpp"
 
 namespace aco {
@@ -11,14 +13,13 @@ class TaskGenerator final {
 
   TaskGenerator(Tasks tasks, Weights weights)
       : tasks_(std::move(tasks)),
-        distribution_(RandomGenerator::GetInstance(), std::move(weights)) {}
-
-  template <typename Iter>
-    requires std::forward_iterator<Iter>
-  TaskGenerator(Tasks tasks, Iter weights_begin, Iter weights_end)
-      : tasks_(std::move(tasks)),
-        distribution_(RandomGenerator::GetInstance(), weights_begin,
-                      weights_end) {}
+        distribution_(RandomGenerator::GetInstance(), weights.begin(),
+                      weights.end()) {
+    if (tasks_.size() != weights.size()) {
+      throw std::runtime_error(
+          "The size of the weight vector does not match the number of targets");
+    }
+  }
 
   Task Get() {
     auto task_index = distribution_.Get();
@@ -29,5 +30,10 @@ class TaskGenerator final {
   Tasks tasks_;
   DiscreteDistribution distribution_;
 };
+
+std::vector<double> ReadWeights(std::string_view filepath);
+
+using Target = uint32_t;
+std::vector<Target> CreateTargets(size_t size);
 
 }  // namespace aco

@@ -1,40 +1,26 @@
 #include <exception>
 #include <iostream>
 
-#include "ACO.hpp"
-#include "warehouse.hpp"
+#include "model.hpp"
 
 using namespace aco;
 
-int main(int argc, char *argv[]) {
-  if (argc != 2) {
-    std::cout << "Invalid command line argument. Expected path to csv file\n";
-    return 1;
-  }
-
+int main(int argc, char* argv[]) {
   try {
-    auto warehouse_filepath = argv[1];
-    auto warehouse_content = ReadCSVFile(warehouse_filepath);
-    auto warehouse = Warehouse(warehouse_content);
-    std::cout << "Warehouse map:\n" << warehouse;
-
-    auto graph = Warehouse::ToGraph(warehouse);
-
-    ACOParameters parameters{
-        .start_vertex = static_cast<uint32_t>(warehouse.GetStartVertex()),
-        .finish_vertex =
-            static_cast<uint32_t>(*warehouse.GetFinishVertices().begin()),
-    };
-
-    auto ACO = BasicACO(std::move(parameters), graph);
-    Route route;
-    for (uint32_t i = 0; i < 1000; ++i) {
-      route = ACO.Execute();
+    if (argc != 3) {
+      throw std::runtime_error(
+          "Invalid command line arguments. Expected path to file with "
+          "warehouse and path to file with tasks probabilities\n");
     }
-    std::cout << "Found route:\n";
-    warehouse.VisualizeRoute(std::cout, route);
 
-  } catch (const std::exception &ex) {
+    const auto warehouse = Warehouse::WarehouseFromFile(argv[1]);
+    const auto weights = ReadWeights(argv[2]);
+
+    auto model = Model(warehouse, weights);
+    model.Run();
+    std::cout << "Time: " << model.GetTime() << "\n";
+
+  } catch (const std::exception& ex) {
     std::cout << ex.what() << "\n";
     return 1;
   }

@@ -1,10 +1,10 @@
 add_library (aco 
+    ACO.cpp
     main.cpp
-    ACO.cpp 
-    csv.cpp 
-    graph.cpp 
-    task_generator.cpp 
-    warehouse.cpp
-    randoms.cpp
+    model.cpp
     pheromones.cpp
+    randoms.cpp
+    robot.cpp
+    task_generator.cpp
+    warehouse.cpp
 )

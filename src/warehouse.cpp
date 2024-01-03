@@ -1,184 +1,141 @@
 #include "warehouse.hpp"
 
-#include <cassert>
-#include <cmath>
-#include <unordered_set>
-#include <variant>
-
-#include "graph.hpp"
+#include <fstream>
+#include <sstream>
 
 namespace aco {
 
-bool IsAvailableWarehouseCeil(WarehouseCeilType ceil) {
-  return ceil != WarehouseCeilType::unavailable;
-}
-
-WarehouseCeilType CreateWarehouseCeil(std::string_view type) {
+WarehouseCeil::WarehouseCeil(std::string_view type) {
   if (type.compare("R") == 0) {
-    return WarehouseCeilType::unavailable;
+    type_ = WarehouseCeilType::unavailable;
   } else if (type.compare("G") == 0) {
-    return WarehouseCeilType::empty;
+    type_ = WarehouseCeilType::empty;
   } else if (type.compare("T") == 0) {
-    return WarehouseCeilType::start;
+    type_ = WarehouseCeilType::start;
   } else if (type.compare("Y") == 0) {
-    return WarehouseCeilType::finish;
+    type_ = WarehouseCeilType::finish;
   } else {
     throw std::runtime_error(
         "Invalid ceil type. One of the following is expected: R, G, T, Y");
   }
 }
 
-std::ostream &operator<<(std::ostream &os, WarehouseCeilType ceil) {
-  switch (ceil) {
-    case WarehouseCeilType::unavailable:
-      os << "R";
-      break;
-    case WarehouseCeilType::empty:
-      os << "G";
-      break;
-    case WarehouseCeilType::start:
-      os << "T";
-      break;
-    case WarehouseCeilType::finish:
-      os << "Y";
-      break;
-    default:
-      assert(0);
-  }
-  return os;
+WarehouseCeilType WarehouseCeil::GetType() const { return type_; }
+
+bool WarehouseCeil::IsAvailable() const {
+  return type_ != WarehouseCeilType::unavailable;
 }
 
-Warehouse::Warehouse(const Rows &map) {
-  height_ = map.size();
+Warehouse::Warehouse(const std::vector<std::vector<std::string>> &map) {
+  size_t height = map.size();
+  size_t width{};
 
-  if (height_ != 0) {
-    width_ = map[0].size();
+  if (height != 0) {
+    width = map[0].size();
   }
-
-  if (height_ == 0 || width_ == 0) {
+  if (height == 0 || width == 0) {
     throw std::runtime_error("Invalid map size");
   }
 
   for (const auto &row : map) {
-    if (row.size() != width_) {
+    if (row.size() != width) {
       throw std::runtime_error("Invalid row size");
     }
   }
 
-  ceils_.reserve(height_ * width_);
+  warehouse_.assign(height, {});
+  uint32_t row_ind = 0;
+  uint32_t col_ind = 0;
   for (const auto &row : map) {
+    col_ind = 0;
     for (const auto &ceil_type : row) {
-      ceils_.emplace_back(CreateWarehouseCeil(ceil_type));
-
-      const auto &new_ceil = ceils_.back();
-      Vertex new_ceil_number = ceils_.size() - 1;
-
-      switch (new_ceil) {
+      warehouse_[row_ind].emplace_back(ceil_type);
+      const auto &new_ceil = warehouse_[row_ind].back();
+      switch (new_ceil.GetType()) {
         case WarehouseCeilType::start:
-          start_ceil_ = new_ceil_number;
+          start_ceils_.push_back({row_ind, col_ind});
           break;
         case WarehouseCeilType::finish:
-          finish_ceils_.insert(new_ceil_number);
+          finish_ceils_.push_back({row_ind, col_ind});
           break;
         default:
           break;
       }
+      ++col_ind;
     }
+    ++row_ind;
   }
 
-  if (!start_ceil_ || finish_ceils_.empty()) {
+  if (start_ceils_.empty() || finish_ceils_.empty()) {
     throw std::runtime_error("Invalid map. At least one T and Y was expected");
   }
 }
 
-Vertex Warehouse::GetStartVertex() const { return *start_ceil_; }
+Warehouse Warehouse::WarehouseFromFile(std::string_view filepath) {
+  std::ifstream fin(filepath.data());
+  if (fin.fail()) {
+    throw std::runtime_error("Error opening the file " + std::string(filepath));
+  }
 
-const std::unordered_set<Vertex> &Warehouse::GetFinishVertices() const {
+  std::vector<std::vector<std::string>> rows;
+  while (fin.good()) {
+    std::vector<std::string> row;
+    std::string string_row;
+    std::getline(fin, string_row);
+
+    std::stringstream ss(string_row);
+    while (ss.good()) {
+      std::string substr;
+      getline(ss, substr, ' ');
+      row.emplace_back(std::move(substr));
+    }
+    rows.emplace_back(std::move(row));
+  }
+
+  return Warehouse(rows);
+}
+
+uint32_t Warehouse::Height() const { return warehouse_.size(); }
+
+uint32_t Warehouse::Width() const { return warehouse_[0].size(); }
+
+const std::vector<Coordinates> &Warehouse::GetStartVertices() const & {
+  return start_ceils_;
+}
+
+const std::vector<Coordinates> &Warehouse::GetFinishVertices() const & {
   return finish_ceils_;
 }
 
-Graph Warehouse::ToGraph(const Warehouse &warehouse) {
-  size_t num_vertex = warehouse.height_ * warehouse.width_;
-  auto graph = Graph(num_vertex);
-  for (Vertex vertex = 0; vertex < num_vertex; ++vertex) {
-    for (const auto &neigh : warehouse.GetNeighbours(vertex)) {
-      graph.SetEdge(vertex, neigh, warehouse.GetDistance(vertex, neigh));
-    }
-  }
-  return graph;
+size_t Warehouse::NumberStartVertices() const {
+  return GetStartVertices().size();
 }
 
-void Warehouse::VisualizeRoute(std::ostream &os, const Route &route) {
-  std::unordered_set<Vertex> route_vertices(route.begin(), route.end());
-
-  for (Vertex ceil_index = 0, num_ceils = ceils_.size(); ceil_index < num_ceils;
-       ++ceil_index) {
-    if (route_vertices.contains(ceil_index)) {
-      if (ceil_index == start_ceil_) {
-        os << "T ";
-      } else if (finish_ceils_.contains(ceil_index)) {
-        os << "Y ";
-      } else {
-        os << ". ";
-      }
-
-    } else {
-      const auto &ceil = ceils_[ceil_index];
-      os << ceil << ' ';
-    }
-
-    if (ceil_index % width_ + 1 == width_) {
-      os << '\n';
-    }
-  }
+size_t Warehouse::NumberFinishVertices() const {
+  return GetFinishVertices().size();
 }
 
-std::vector<Vertex> Warehouse::GetNeighbours(Vertex vertex) const {
-  if (!IsAvailableWarehouseCeil(ceils_[vertex])) {
+std::vector<Coordinates> Warehouse::GetNeighbours(Coordinates coord) const {
+  if (!warehouse_[coord.x][coord.y].IsAvailable()) {
     return {};
   }
-  std::vector<Vertex> neighbours;
 
-  auto row = vertex / width_;
-  auto col = vertex % width_;
-
-  if (col != width_ - 1 && IsAvailableWarehouseCeil(ceils_[vertex + 1])) {
-    neighbours.push_back(vertex + 1);
+  std::vector<Coordinates> neighbours;
+  if (coord.y != Width() - 1 &&
+      warehouse_[coord.x][coord.y + 1].IsAvailable()) {
+    neighbours.push_back({coord.x, coord.y + 1});
   }
-  if (col != 0 && IsAvailableWarehouseCeil(ceils_[vertex - 1])) {
-    neighbours.push_back(vertex - 1);
+  if (coord.y != 0 && warehouse_[coord.x][coord.y - 1].IsAvailable()) {
+    neighbours.push_back({coord.x, coord.y - 1});
   }
-  if (row != height_ - 1 && IsAvailableWarehouseCeil(ceils_[vertex + width_])) {
-    neighbours.push_back(vertex + width_);
+  if (coord.x != Height() - 1 &&
+      warehouse_[coord.x + 1][coord.y].IsAvailable()) {
+    neighbours.push_back({coord.x + 1, coord.y});
   }
-  if (row != 0 && IsAvailableWarehouseCeil(ceils_[vertex - width_])) {
-    neighbours.push_back(vertex - width_);
+  if (coord.x != 0 && warehouse_[coord.x - 1][coord.y].IsAvailable()) {
+    neighbours.push_back({coord.x - 1, coord.y});
   }
-
   return neighbours;
-}
-
-Distance Warehouse::GetDistance(Vertex from, Vertex to) const {
-  auto from_x = from % width_;
-  auto from_y = from / width_;
-  auto to_x = to % width_;
-  auto to_y = to / width_;
-
-  auto delta_x = static_cast<Distance>(from_x) - static_cast<Distance>(to_x);
-  auto delta_y = static_cast<Distance>(from_y) - static_cast<Distance>(to_y);
-
-  return std::sqrt(delta_x * delta_x + delta_y * delta_y);
-}
-
-std::ostream &operator<<(std::ostream &os, const Warehouse &warehouse) {
-  for (size_t i = 0, size = warehouse.ceils_.size(); i < size; ++i) {
-    const auto &ceil = warehouse.ceils_[i];
-    os << ceil << ' ';
-    if (i % warehouse.width_ + 1 == warehouse.width_) {
-      os << '\n';
-    }
-  }
-  return os;
 }
 
 }  // namespace aco
