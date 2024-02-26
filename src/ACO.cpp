@@ -1,17 +1,15 @@
-#include "ACO.hpp"
+#include <ACO.hpp>
 
 namespace aco {
 
-MultiTargetACO::BasicACO::BasicACO(
-    MultiTargetACO::BasicACOParameters parameters, const Warehouse &warehouse,
-    const std::vector<std::optional<Coordinates>> &robots)
-    : parameters_(std::move(parameters)),
-      warehouse_(warehouse),
+BasicACO::BasicACO(BasicACOParameters parameters, const Warehouse &warehouse,
+                   const std::vector<std::optional<Coordinates>> &robots)
+    : parameters_(std::move(parameters)), warehouse_(warehouse),
       pheromones_(warehouse_.Height(), warehouse_.Width(),
                   parameters_.initial_pheromone),
       robots_(robots) {}
 
-Coordinates MultiTargetACO::BasicACO::MakeStep(const Route &route) const {
+Coordinates BasicACO::MakeStep(const Route &route) const {
   auto available_neigh = GetAvailableNeighbors(route.back(), route);
 
   if (available_neigh.empty()) {
@@ -31,7 +29,7 @@ Coordinates MultiTargetACO::BasicACO::MakeStep(const Route &route) const {
   return next_vertex;
 }
 
-void MultiTargetACO::BasicACO::UpdatePheromones(const Route &route) {
+void BasicACO::UpdatePheromones(const Route &route) {
   pheromones_.Evaporate(parameters_.ro);
 
   auto length = route.size();
@@ -41,22 +39,18 @@ void MultiTargetACO::BasicACO::UpdatePheromones(const Route &route) {
   }
 }
 
-Coordinates MultiTargetACO::BasicACO::GetStart() const {
-  return parameters_.start;
-}
+Coordinates BasicACO::GetStart() const { return parameters_.start; }
 
-Coordinates MultiTargetACO::BasicACO::GetFinish() const {
-  return parameters_.finish;
-}
+Coordinates BasicACO::GetFinish() const { return parameters_.finish; }
 
-std::vector<Coordinates> MultiTargetACO::BasicACO::GetAvailableNeighbors(
-    Coordinates coord, const Route &route) const {
+std::vector<Coordinates>
+BasicACO::GetAvailableNeighbors(Coordinates coord, const Route &route) const {
   std::vector<Coordinates> available_neigh;
 
   auto neighbours = warehouse_.GetNeighbours(coord);
   for (const auto &neig : neighbours) {
     if (std::find(route.begin(), route.end(), neig) == route.end() &&
-        NoRobots(neig)) {
+        !AreRobotsInCoordinates(neig)) {
       available_neigh.push_back(neig);
     }
   }
@@ -64,7 +58,7 @@ std::vector<Coordinates> MultiTargetACO::BasicACO::GetAvailableNeighbors(
   return available_neigh;
 }
 
-std::vector<double> MultiTargetACO::BasicACO::CalculateTransitionProbabilities(
+std::vector<double> BasicACO::CalculateTransitionProbabilities(
     Coordinates start_vertex, const std::vector<Coordinates> &neighbors) const {
   std::vector<double> probs;
   probs.reserve(neighbors.size());
@@ -78,13 +72,12 @@ std::vector<double> MultiTargetACO::BasicACO::CalculateTransitionProbabilities(
   return probs;
 }
 
-double MultiTargetACO::BasicACO::CalculateTau(
-    PheromoneType pheromone_count) const {
+double BasicACO::CalculateTau(PheromoneType pheromone_count) const {
   return std::pow(pheromone_count, parameters_.alpha);
 }
 
-bool MultiTargetACO::BasicACO::NoRobots(Coordinates coord) const {
-  return std::find(robots_.begin(), robots_.end(), coord) == robots_.end();
+bool BasicACO::AreRobotsInCoordinates(Coordinates coord) const {
+  return std::find(robots_.begin(), robots_.end(), coord) != robots_.end();
 }
 
 MultiTargetACO::MultiTargetACO(
@@ -93,26 +86,28 @@ MultiTargetACO::MultiTargetACO(
     const std::vector<std::optional<Coordinates>> &robots) {
   algorithms_.reserve(targets.size());
   for (const auto &target : targets) {
-    algorithms_.emplace_back(std::make_unique<BasicACO>(
-        MultiTargetACO::BasicACOParameters{.start = start, .finish = target},
-        warehouse, robots));
+    algorithms_.emplace_back(
+        BasicACOParameters{.start = start, .finish = target}, warehouse,
+        robots);
   }
 }
 
-Coordinates MultiTargetACO::MakeStep(Target target, const Route &route) const {
-  return algorithms_[target]->MakeStep(route);
+Coordinates MultiTargetACO::MakeStepForTarget(Target target,
+                                              const Route &route) const {
+  return algorithms_[target].MakeStep(route);
 }
 
-void MultiTargetACO::UpdatePheromones(Target target, const Route &route) {
-  algorithms_[target]->UpdatePheromones(route);
+void MultiTargetACO::UpdatePheromonesForTarget(Target target,
+                                               const Route &route) {
+  algorithms_[target].UpdatePheromones(route);
 }
 
-Coordinates MultiTargetACO::GetStart(Target target) const {
-  return algorithms_[target]->GetStart();
+Coordinates MultiTargetACO::GetStartByTarget(Target target) const {
+  return algorithms_[target].GetStart();
 }
 
-Coordinates MultiTargetACO::GetFinish(Target target) const {
-  return algorithms_[target]->GetFinish();
+Coordinates MultiTargetACO::GetFinishByTarget(Target target) const {
+  return algorithms_[target].GetFinish();
 }
 
-}  // namespace aco
+} // namespace aco

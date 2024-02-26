@@ -1,6 +1,5 @@
-#include "task_generator.hpp"
-
 #include <fstream>
+#include <task_generator.hpp>
 
 namespace aco {
 
@@ -10,14 +9,13 @@ std::vector<double> ReadWeights(std::string_view filepath) {
     throw std::runtime_error("Error opening the file " + std::string(filepath));
   }
 
-  std::vector<double> rows;
+  std::vector<double> weights;
   double value;
-  while (fin.good()) {
-    fin >> value;
-    rows.push_back(value);
+  while (fin >> value) {
+    weights.push_back(value);
   }
 
-  return rows;
+  return weights;
 }
 
 std::vector<uint32_t> CreateTargets(size_t size) {
@@ -26,4 +24,4 @@ std::vector<uint32_t> CreateTargets(size_t size) {
   return targets;
 }
 
-}  // namespace aco
+} // namespace aco

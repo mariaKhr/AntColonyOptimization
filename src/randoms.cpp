@@ -1,4 +1,4 @@
-#include "randoms.hpp"
+#include <randoms.hpp>
 
 namespace aco {
 
@@ -18,4 +18,4 @@ DiscreteDistribution::DiscreteDistribution(RandomGenerator &gen,
 
 int32_t DiscreteDistribution::Get() { return distribution_(gen_.Get()); }
 
-}  // namespace aco
+} // namespace aco

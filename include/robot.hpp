@@ -1,29 +1,29 @@
 #pragma once
 
-#include "ACO.hpp"
+#include <ACO.hpp>
 
 namespace aco {
 
 class Robot final {
- public:
-  void SetAlgorithm(MultiTargetACO* algo);
+public:
+  void SetAlgorithm(MultiTargetACO *algo);
   void SetRoute(Target target);
   std::optional<Coordinates> MakeStep();
 
   bool Busy() const;
   bool Finished() const;
 
-  const Route& GetRoute() const;
+  const Route &GetRoute() const;
 
- private:
+private:
   Route route_;
   Coordinates start_;
   Coordinates finish_;
   Target target_;
 
   bool to_finish_;
-  bool busy_ = false;
-  MultiTargetACO* algorithm_;
+  bool busy_{false};
+  MultiTargetACO *algorithm_;
 };
 
-}  // namespace aco
+} // namespace aco

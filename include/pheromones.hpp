@@ -1,13 +1,13 @@
 #pragma once
 
-#include "coordinates.hpp"
+#include <coordinates.hpp>
 
 namespace aco {
 
 using PheromoneType = double;
 
 class Pheromones final {
- public:
+public:
   Pheromones(uint32_t height, uint32_t width, PheromoneType initial_value);
 
   PheromoneType Get(Coordinates coord) const;
@@ -15,8 +15,8 @@ class Pheromones final {
   void Add(Coordinates coord, PheromoneType delta);
   void Evaporate(double evaporation_coef);
 
- private:
+private:
   std::vector<std::vector<PheromoneType>> pheromones_;
 };
 
-}  // namespace aco
+} // namespace aco

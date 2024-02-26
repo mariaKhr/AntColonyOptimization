@@ -1,22 +1,20 @@
-#include "warehouse.hpp"
-
 #include <fstream>
 #include <sstream>
+#include <warehouse.hpp>
 
 namespace aco {
 
 WarehouseCeil::WarehouseCeil(std::string_view type) {
-  if (type.compare("R") == 0) {
+  if (type.compare("!") == 0) {
     type_ = WarehouseCeilType::unavailable;
-  } else if (type.compare("G") == 0) {
+  } else if (type.compare(".") == 0) {
     type_ = WarehouseCeilType::empty;
-  } else if (type.compare("T") == 0) {
+  } else if (type.compare("S") == 0) {
     type_ = WarehouseCeilType::start;
-  } else if (type.compare("Y") == 0) {
+  } else if (type.compare("F") == 0) {
     type_ = WarehouseCeilType::finish;
   } else {
-    throw std::runtime_error(
-        "Invalid ceil type. One of the following is expected: R, G, T, Y");
+    throw std::runtime_error("Invalid ceil type");
   }
 }
 
@@ -28,7 +26,7 @@ bool WarehouseCeil::IsAvailable() const {
 
 Warehouse::Warehouse(const std::vector<std::vector<std::string>> &map) {
   size_t height = map.size();
-  size_t width{};
+  size_t width = 0;
 
   if (height != 0) {
     width = map[0].size();
@@ -44,30 +42,26 @@ Warehouse::Warehouse(const std::vector<std::vector<std::string>> &map) {
   }
 
   warehouse_.assign(height, {});
-  uint32_t row_ind = 0;
-  uint32_t col_ind = 0;
-  for (const auto &row : map) {
-    col_ind = 0;
-    for (const auto &ceil_type : row) {
-      warehouse_[row_ind].emplace_back(ceil_type);
-      const auto &new_ceil = warehouse_[row_ind].back();
+  for (size_t row_ind = 0, rows = map.size(); row_ind < rows; ++row_ind) {
+    const auto &row = map[row_ind];
+    for (size_t col_ind = 0, cols = row.size(); col_ind < cols; ++col_ind) {
+      const auto &new_ceil = warehouse_[row_ind].emplace_back(row[col_ind]);
       switch (new_ceil.GetType()) {
-        case WarehouseCeilType::start:
-          start_ceils_.push_back({row_ind, col_ind});
-          break;
-        case WarehouseCeilType::finish:
-          finish_ceils_.push_back({row_ind, col_ind});
-          break;
-        default:
-          break;
+      case WarehouseCeilType::start:
+        start_ceils_.emplace_back(row_ind, col_ind);
+        break;
+      case WarehouseCeilType::finish:
+        finish_ceils_.emplace_back(row_ind, col_ind);
+        break;
+      default:
+        break;
       }
-      ++col_ind;
     }
-    ++row_ind;
   }
 
   if (start_ceils_.empty() || finish_ceils_.empty()) {
-    throw std::runtime_error("Invalid map. At least one T and Y was expected");
+    throw std::runtime_error(
+        "Invalid map. At least one Start and Finish ceil was expected");
   }
 }
 
@@ -87,9 +81,9 @@ Warehouse Warehouse::WarehouseFromFile(std::string_view filepath) {
     while (ss.good()) {
       std::string substr;
       getline(ss, substr, ' ');
-      row.emplace_back(std::move(substr));
+      row.push_back(std::move(substr));
     }
-    rows.emplace_back(std::move(row));
+    rows.push_back(std::move(row));
   }
 
   return Warehouse(rows);
@@ -121,21 +115,22 @@ std::vector<Coordinates> Warehouse::GetNeighbours(Coordinates coord) const {
   }
 
   std::vector<Coordinates> neighbours;
+  neighbours.reserve(4);
   if (coord.y != Width() - 1 &&
       warehouse_[coord.x][coord.y + 1].IsAvailable()) {
-    neighbours.push_back({coord.x, coord.y + 1});
+    neighbours.emplace_back(coord.x, coord.y + 1);
   }
   if (coord.y != 0 && warehouse_[coord.x][coord.y - 1].IsAvailable()) {
-    neighbours.push_back({coord.x, coord.y - 1});
+    neighbours.emplace_back(coord.x, coord.y - 1);
   }
   if (coord.x != Height() - 1 &&
       warehouse_[coord.x + 1][coord.y].IsAvailable()) {
-    neighbours.push_back({coord.x + 1, coord.y});
+    neighbours.emplace_back(coord.x + 1, coord.y);
   }
   if (coord.x != 0 && warehouse_[coord.x - 1][coord.y].IsAvailable()) {
-    neighbours.push_back({coord.x - 1, coord.y});
+    neighbours.emplace_back(coord.x - 1, coord.y);
   }
   return neighbours;
 }
 
-}  // namespace aco
+} // namespace aco

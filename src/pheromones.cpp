@@ -1,4 +1,4 @@
-#include "pheromones.hpp"
+#include <pheromones.hpp>
 
 namespace aco {
 
@@ -20,11 +20,11 @@ void Pheromones::Add(Coordinates coord, PheromoneType delta) {
 }
 
 void Pheromones::Evaporate(double evaporation_coef) {
-  for (auto& row : pheromones_) {
-    for (auto& ceil : row) {
+  for (auto &row : pheromones_) {
+    for (auto &ceil : row) {
       ceil *= (1 - evaporation_coef);
     }
   }
 }
 
-}  // namespace aco
+} // namespace aco

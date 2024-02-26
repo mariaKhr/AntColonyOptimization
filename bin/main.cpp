@@ -1,7 +1,7 @@
 #include <exception>
 #include <iostream>
 
-#include "model.hpp"
+#include <model.hpp>
 
 using namespace aco;
 

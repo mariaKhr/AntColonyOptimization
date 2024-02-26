@@ -1,8 +1,7 @@
 #pragma once
 
-#include <memory>
-
-#include "coordinates.hpp"
+#include <coordinates.hpp>
+#include <string_view>
 
 namespace aco {
 
@@ -14,18 +13,18 @@ enum class WarehouseCeilType {
 };
 
 class WarehouseCeil final {
- public:
+public:
   WarehouseCeil(std::string_view type);
 
   WarehouseCeilType GetType() const;
   bool IsAvailable() const;
 
- private:
+private:
   WarehouseCeilType type_;
 };
 
 class Warehouse final {
- public:
+public:
   Warehouse(const std::vector<std::vector<std::string>> &warehouse);
   static Warehouse WarehouseFromFile(std::string_view filepath);
 
@@ -38,13 +37,12 @@ class Warehouse final {
   size_t NumberFinishVertices() const;
   std::vector<Coordinates> GetNeighbours(Coordinates coord) const;
 
- private:
+private:
   std::vector<std::vector<WarehouseCeil>> warehouse_;
   std::vector<Coordinates> start_ceils_;
   std::vector<Coordinates> finish_ceils_;
 };
 
 using Route = std::vector<Coordinates>;
-using RoutePtr = std::unique_ptr<Route>;
 
-}  // namespace aco
+} // namespace aco

@@ -1,15 +1,13 @@
-#include "model.hpp"
+#include <model.hpp>
 
 namespace aco {
 
-Model::Model(const Warehouse& warehouse, const Weights& weights)
+Model::Model(const Warehouse &warehouse, const Weights &weights)
     : task_generator_(CreateTargets(warehouse.NumberFinishVertices()), weights),
-      warehouse_(warehouse),
-      robots_(num_robots_),
-      robot_coord_(num_robots_),
+      warehouse_(warehouse), robots_(num_robots_), robot_coord_(num_robots_),
       algorithm_(warehouse.GetStartVertices()[0], warehouse.GetFinishVertices(),
                  warehouse, robot_coord_) {
-  for (auto& robot : robots_) {
+  for (auto &robot : robots_) {
     robot.SetAlgorithm(&algorithm_);
   }
 }
@@ -17,8 +15,8 @@ Model::Model(const Warehouse& warehouse, const Weights& weights)
 void Model::Run() {
   while (completed_targets_ != num_targets_) {
     ++timer_;
-    size_t robot_id = 0;
-    for (auto& robot : robots_) {
+    for (size_t robot_id = 0; robot_id < num_robots_; ++robot_id) {
+      auto &robot = robots_[robot_id];
       if (!robot.Busy()) {
         if (targets_started_ < num_targets_) {
           auto target = GetNextTarget();
@@ -33,8 +31,6 @@ void Model::Run() {
       if (robot.Finished()) {
         ++completed_targets_;
       }
-
-      ++robot_id;
     }
   }
 }
@@ -43,4 +39,4 @@ Target Model::GetNextTarget() { return task_generator_.Get(); }
 
 uint64_t Model::GetTime() const { return timer_; }
 
-}  // namespace aco
+} // namespace aco
